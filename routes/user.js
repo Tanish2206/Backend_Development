@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const users = require('../controllers/user')
-const admin = require('../controllers/admin')
+// const admin = require('../controllers/admin')
 const payment = require('../controllers/payment')
 const middleware = require('../middleware/auth')
 const project = require('../controllers/project')

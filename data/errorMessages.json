@@ -1,0 +1,19 @@
+{
+    "defaultErr": {
+      "badData": {
+        "message": "Bad Data"
+      }
+    },
+    "authErr": {
+      "userNotFound": {
+        "message": "User Not Found"
+      },
+      "tokenNotFound": {
+        "message": "A token is required for authentication"
+      },
+      "invalidToken": {
+        "message": "Authentication Error. Invalid Token"
+      }
+    }
+}
+  

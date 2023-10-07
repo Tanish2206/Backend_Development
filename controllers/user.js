@@ -60,6 +60,7 @@ module.exports.register = async (req, res, next) => {
       return res.status(200).json({
         userId: userId,
         message: "OTP sent successfully.",
+        code:code,
       });
     } 
     else if (role === 'Designer') {

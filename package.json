@@ -36,7 +36,8 @@
     "pretty": "^2.0.0",
     "prisma": "^5.4.1",
     "razorpay": "^2.9.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "railway": "^2.0.17"
   },
   "devDependencies": {
     "nodemon": "^2.0.22",

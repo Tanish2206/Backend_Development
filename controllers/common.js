@@ -1,4 +1,3 @@
-const fast2sms = require("fast-two-sms");
 const axios = require("axios");
 const helper = require("../utility/loginHelper");
 const responses = require("../utility/response");

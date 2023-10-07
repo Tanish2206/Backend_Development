@@ -1,5 +1,4 @@
 // const { PrismaClient } = require("@prisma/client");
-// const fast2sms = require("fast-two-sms");
 // const helper = require("../utility/loginHelper");
 // const responses = require("../utility/response");
 // const prisma = new PrismaClient();

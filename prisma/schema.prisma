@@ -7,10 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
+enum Role {
+  User
+  Admin
+  SuperAdmin
+  Designer
+}
 
 model User {
   id                Int               @id @default(autoincrement())
+  role              Role              @default(User)
   firstName         String?
   lastName          String?
   email             String            @unique
@@ -22,6 +28,364 @@ model User {
   isVerified        Boolean           @default(false)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @default(now())
- 
+  projects          Project[]
+  transactions      TransactionOrder[]
 }
 
+model OTP {
+  id     Int @id @default(autoincrement())
+  code   Int
+  userId Int? @unique
+  designerId Int? @unique
+}
+
+model Design {
+  id                 Int                  @id @default(autoincrement())
+  title              String
+  description        String?
+  designDetailId     Int?
+  designDetail       DesignDetail?        @relation(fields: [designDetailId], references: [id])
+  propertyDetailId   Int?
+  propertyDetail     PropertyDetail?      @relation(fields: [propertyDetailId], references: [id])
+  designMedia        DesignMedia[]
+  isFree             Boolean?
+  amount             Int?
+  length             Int?
+  width              Int?
+  plotArea           Float?
+  numberOfFloors     Int?
+  facing             String?
+  bedrooms           Int?
+  bathrooms          Int?
+  balcony            Int?
+  kitchens           Int?
+  livingrooms        Int?
+  dinningrooms       Int?
+  garageCapacity     Int?
+  constructionYear   Int?
+  vastu              Boolean?
+  unitType           String?
+  transactionOrder   TransactionOrder?    @relation(fields: [transactionOrderId], references: [id])
+  transactionOrderId Int?
+  userId             Int?                 // New field to store the user who paid for the design
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model DesignMedia {
+  id        Int      @id @default(autoincrement())
+  link      String
+  mediaType String
+  designId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  design    Design   @relation(fields: [designId], references: [id])
+}
+
+model DesignDetail {
+  id             Int      @id @default(autoincrement())
+  designCategory String?   
+  designType     String? 
+  designs        Design[]
+}
+
+model PropertyDetail {
+  id               Int      @id @default(autoincrement())
+  propertyCategory String? 
+  propertyType     String? 
+  designs          Design[]
+  masterBedroom  Int?
+  guestRooms     Int?
+  kidsRooms      Int?
+  drawingHall    Int?
+  toilets        Int?
+  temple         Int?
+  storeRooms     Int?
+  washArea       Int?
+  gardens        Int?
+  porche         Int?
+  swimmingPools  Int?
+  bars           Int?
+  lifts          Int?
+  shopType       String?
+  shops          Int?
+  flats          Int?
+  parkings         Int?
+  marriageHalls     Int?
+  restaurants       Int?
+  areto    Int?
+  classrooms        Int?
+  officeCabins         Int?
+  sportsGrounds     Int?
+  laboratory       Int?
+  library    Int?
+  auditorium        Int?
+  conferenceRooms         Int?
+  halls     Int?
+  serverRooms       Int?
+  stairs    Int?
+  beds        Int?
+  doctorCabins         Int?
+  OPD     Int?
+  genWard       Int?
+  emergencyWard    Int?
+  seatingCapacity        Int?
+  rooms         Int?
+  gatheringAreas     Int?
+  activityArea       Int?
+  numberOfSeats    Int?
+  screens        Int?
+  cafes         Int?
+  banquetHalls     Int?
+  sportsArea       Int?
+  spa    Int?
+  medical        Int?
+  theater         Int?
+  conferenceHalls     Int?
+  machineAreas       Int?
+  cardioArea    Int?
+  weightArea        Int?
+  indoorArea         Int?
+  outdoorArea     Int?
+  gardenArea       Int?
+}
+
+model Designer {
+  id                     Int       @id @default(autoincrement())
+  role                   Role      @default(Designer)
+  firstName              String?   
+  lastName               String?   
+  email                  String?    @unique  
+  password               String?    
+  designerMedia          DesignerMedia[]
+  mobile                 BigInt    @unique
+  gender                 String?     
+  address                String?     
+  country                String?     
+  city                   String?     
+  state                  String?     
+  dateOfBirth            String?
+  category               String?     
+  workingHours           String?     
+  paymentCondition       String?     
+  accountName            String?     
+  accountNumber          BigInt?    
+  IFSC                   String?
+  website                String?     
+  about                  String?     
+  isVerified             Boolean           @default(false)
+  status                 Int?              @default(1)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  token                  String?
+  customerRating         Float?
+  totalEarnings          Int?
+  activeDays             String?
+  comment                String?
+  dueDate                String?
+  paymentDueDate         String?
+  assignedProjects       Project[] @relation("AssignedProjects")
+}
+
+model DesignerMedia {
+  id        Int      @id @default(autoincrement())
+  link      String
+  mediaType String
+  purpose   String?  // Add the purpose property to specify the purpose of the media
+  designerId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  designer    Designer   @relation(fields: [designerId], references: [id])
+}
+
+enum ProjectType {
+  Interior
+  Elevation
+  Planning
+}
+
+model Project {
+  id                 Int         @id @default(autoincrement())
+  title              String
+  description        String?
+  location           String?
+  clientId           Int
+  client             User        @relation(fields: [clientId], references: [id])
+  projectType        ProjectType
+  sheetURL           String?
+  assignedToEmployee Designer?   @relation("AssignedProjects", fields: [designerId], references: [id])
+  designerId         Int?
+  isAccepted         Boolean?  @default(false)
+  startDate          DateTime?
+  endDate            DateTime?
+  media              Media[]     @relation("ProjectToMedia")
+  latitude           Float?
+  longitude          Float?
+  width              Int?
+  length             Int?
+  totalAmount        Int?
+  paidAmount         Int?
+  isPaymentDone      Boolean     @default(false)
+  isSiteVisitRequired Boolean?
+  isSiteIrregular    Boolean?
+  currentIteration   Int?
+  maximumIterations  Int?         @default(0)
+  projectStatus      String?
+  projectStatusByDesigner   String?
+  comment                String?
+  dueDate                String?
+  paymentDueDate         String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+}
+
+enum mediaType {
+  Image
+  Video
+}
+
+model Media {
+  id        Int       @id @default(autoincrement())
+  projectId Int
+  project   Project   @relation("ProjectToMedia", fields: [projectId], references: [id])
+  link      String
+  mediaType mediaType
+}
+
+model Banner {
+  id          Int           @id @default(autoincrement())
+  bannerMedia BannerMedia[]
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model BannerMedia {
+  id        Int      @id @default(autoincrement())
+  link      String
+  mediaType String
+  bannerId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  banner    Banner   @relation(fields: [bannerId], references: [id])
+}
+
+model PopularDesign {
+  id                 Int                  @id @default(autoincrement())
+  popularDesignMedia PopularDesignMedia[]
+  description        String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model PopularDesignMedia {
+  id              Int           @id @default(autoincrement())
+  link            String
+  mediaType       String
+  popularDesignId Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  popularDesign   PopularDesign @relation(fields: [popularDesignId], references: [id])
+}
+
+model Enquiry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  mobile    BigInt
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model TransactionOrder {
+  id              Int               @id @default(autoincrement())
+  amount          Float
+  currency        String
+  status          TransactionStatus @default(INITIATED)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  user            User               @relation(fields: [userId], references: [id])
+  userId          Int
+  designs         Design[]
+  orderId         String?
+  entity          String?
+  amountPaid      Float?
+  amountDue       Float?
+  receipt         String?
+  offerId         String?
+  paymentStatus   String?
+  attempts        Int?
+  notes           String[]
+  createdAtRazor  DateTime?
+}
+
+model TransactionDetails {
+  id                   Int     @id @default(autoincrement())
+  razorpay_payment_id  String
+  razorpay_order_id    String
+  razorpay_signature   String
+  amount               Float?
+  currency             String?
+  status               String?
+  order_id             String?
+  card_id              String?
+  email                String?
+  contact              String?
+  card                 Json?
+  amount_refunded      Float?
+  refund_status        String?
+  captured             Boolean?
+  description          String?
+  bank                 String?
+  wallet               String?
+  vpa                  String?
+  token_id             String?
+  notes                Json[]
+  fee                  Int?
+  tax                  Int?
+  error_code           String?
+  error_description    String?
+  error_source         String?
+  error_step           String?
+  error_reason         String?
+  acquirer_data        Json?
+  cardDetail        CardDetail?
+  upiDetail         UpiDetail?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+
+model CardDetail {
+  id                  Int               @id @default(autoincrement())
+  cardHolderName      String
+  cardNumber          String
+  expirationMonth     String
+  expirationYear      String
+  transactionDetail   TransactionDetails? @relation(fields: [transactionId], references: [id])
+  transactionId       Int? @unique
+}
+
+model UpiDetail {
+  id                Int               @id @default(autoincrement())
+  transactionId     Int               @unique
+  upiId             String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  transactionDetail TransactionDetails @relation(fields: [transactionId], references: [id])
+}
+
+enum TransactionStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+}
+
+enum PaymentMethod {
+  CARD
+  UPI
+  NETBANKING
+  WALLET
+  OTHERS
+}
